@@ -13,6 +13,8 @@ namespace mpf {
 class MenuService : public QObject, public IMenu
 {
     Q_OBJECT
+    Q_PROPERTY(QVariantList items READ itemsAsVariant NOTIFY menuChanged)
+    Q_PROPERTY(int count READ count NOTIFY menuChanged)
 
 public:
     explicit MenuService(QObject* parent = nullptr);

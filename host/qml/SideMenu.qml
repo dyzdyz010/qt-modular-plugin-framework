@@ -98,12 +98,12 @@ Rectangle {
                 width: menuList.width
                 expanded: root.expanded
                 
-                itemId: modelData.id
-                title: modelData.title
-                icon: modelData.icon
-                route: modelData.route
-                badge: modelData.badge
-                enabled: modelData.enabled
+                itemId: modelData.id || ""
+                title: modelData.label || ""
+                icon: modelData.icon || ""
+                route: modelData.route || ""
+                badge: modelData.badge || ""
+                enabled: modelData.enabled !== false
                 selected: modelData.route === root.currentRoute
                 
                 onClicked: {

@@ -245,7 +245,7 @@ ApplicationWindow {
                                 model: Menu ? Menu.items : []
                                 
                                 Button {
-                                    text: modelData.icon + " " + modelData.title
+                                    text: (modelData.icon || "") + " " + (modelData.label || "")
                                     onClicked: {
                                         if (Navigation && modelData.route) {
                                             mainStackView.clear()
