@@ -9,7 +9,17 @@
 
 namespace mpf::http {
 
-class HttpClient : public QObject {
+#if defined(_WIN32) && !defined(MPF_HTTP_CLIENT_STATIC)
+#ifdef MPF_HTTP_CLIENT_EXPORTS
+#define MPF_HTTP_CLIENT_API __declspec(dllexport)
+#else
+#define MPF_HTTP_CLIENT_API __declspec(dllimport)
+#endif
+#else
+#define MPF_HTTP_CLIENT_API
+#endif
+
+class MPF_HTTP_CLIENT_API HttpClient : public QObject {
     Q_OBJECT
 
 public:

@@ -7,4 +7,14 @@ if(NOT TARGET MPF::foundation-sdk)
     add_library(MPF::foundation-sdk ALIAS MPF::mpf-foundation-sdk)
 endif()
 
+if(NOT TARGET MPF::all)
+    add_library(MPF::all INTERFACE)
+    target_link_libraries(MPF::all INTERFACE MPF::foundation-sdk)
+
+    find_package(MPFHttpClient QUIET)
+    if(TARGET MPF::http-client)
+        target_link_libraries(MPF::all INTERFACE MPF::http-client)
+    endif()
+endif()
+
 check_required_components(MPF)

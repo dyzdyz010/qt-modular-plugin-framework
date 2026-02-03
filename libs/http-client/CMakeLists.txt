@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Network)
 
-add_library(mpf-http-client STATIC
+add_library(mpf-http-client SHARED
     src/http_client.cpp
     include/mpf/http/http_client.h
 )
@@ -25,6 +25,8 @@ target_link_libraries(mpf-http-client
         Qt6::Core
         Qt6::Network
 )
+
+target_compile_definitions(mpf-http-client PRIVATE MPF_HTTP_CLIENT_EXPORTS)
 
 # Install + package config
 include(GNUInstallDirs)
