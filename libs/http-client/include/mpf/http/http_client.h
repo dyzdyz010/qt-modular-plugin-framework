@@ -15,19 +15,22 @@ class HttpClient : public QObject {
 public:
     struct RequestOptions {
         QMap<QString, QString> headers;
-        int timeoutMs = 0;
+        int timeoutMs;
+
+        RequestOptions()
+            : timeoutMs(0) {}
     };
 
     explicit HttpClient(QObject* parent = nullptr);
 
-    QNetworkReply* get(const QUrl& url, const RequestOptions& options = {});
+    QNetworkReply* get(const QUrl& url, RequestOptions options = RequestOptions());
     QNetworkReply* post(const QUrl& url,
                         const QByteArray& body,
                         const QString& contentType,
-                        const RequestOptions& options = {});
+                        RequestOptions options = RequestOptions());
     QNetworkReply* postJson(const QUrl& url,
                             const QJsonObject& body,
-                            const RequestOptions& options = {});
+                            RequestOptions options = RequestOptions());
 
 private:
     QNetworkRequest buildRequest(const QUrl& url,

@@ -9,7 +9,7 @@ namespace mpf::http {
 HttpClient::HttpClient(QObject* parent)
     : QObject(parent) {}
 
-QNetworkReply* HttpClient::get(const QUrl& url, const RequestOptions& options) {
+QNetworkReply* HttpClient::get(const QUrl& url, RequestOptions options) {
     QNetworkRequest request = buildRequest(url, options);
     QNetworkReply* reply = m_manager.get(request);
     applyTimeout(reply, options.timeoutMs);
@@ -19,7 +19,7 @@ QNetworkReply* HttpClient::get(const QUrl& url, const RequestOptions& options) {
 QNetworkReply* HttpClient::post(const QUrl& url,
                                 const QByteArray& body,
                                 const QString& contentType,
-                                const RequestOptions& options) {
+                                RequestOptions options) {
     QNetworkRequest request = buildRequest(url, options, contentType);
     QNetworkReply* reply = m_manager.post(request, body);
     applyTimeout(reply, options.timeoutMs);
@@ -28,7 +28,7 @@ QNetworkReply* HttpClient::post(const QUrl& url,
 
 QNetworkReply* HttpClient::postJson(const QUrl& url,
                                     const QJsonObject& body,
-                                    const RequestOptions& options) {
+                                    RequestOptions options) {
     const QJsonDocument document(body);
     const QByteArray payload = document.toJson(QJsonDocument::Compact);
     return post(url, payload, QStringLiteral("application/json"), options);

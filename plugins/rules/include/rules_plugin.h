@@ -18,7 +18,7 @@ class OrdersService;
  */
 class RulesPlugin : public QObject, public mpf::IPlugin {
   Q_OBJECT
-  Q_PLUGIN_METADATA(IID MPF_IPlugin_iid FILE "../orders_plugin.json")
+  Q_PLUGIN_METADATA(IID MPF_IPlugin_iid FILE "../rules_plugin.json")
   Q_INTERFACES(mpf::IPlugin)
 
 public:
