@@ -1,0 +1,15 @@
+build/
+*.o
+*.so
+*.dll
+*.dylib
+*.a
+*.lib
+moc_*
+qrc_*
+*_autogen/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+.qt/

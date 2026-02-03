@@ -1,0 +1,132 @@
+#pragma once
+
+#include <mpf/mpf_export.h>
+#include <QObject>
+#include <QString>
+#include <QHash>
+#include <QMutex>
+#include <typeinfo>
+#include <memory>
+
+namespace mpf {
+
+/**
+ * @brief Service registration entry
+ */
+struct MPF_FOUNDATION_SDK_EXPORT ServiceEntry
+{
+    QString interfaceName;
+    int version;
+    QObject* instance;
+    QString providerId;  // Plugin that provides this service
+};
+
+/**
+ * @brief Central service registry for plugin dependency injection
+ * 
+ * Plugins register their service implementations here.
+ * Other plugins retrieve services through this registry.
+ */
+class MPF_FOUNDATION_SDK_EXPORT ServiceRegistry : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit ServiceRegistry(QObject* parent = nullptr);
+    ~ServiceRegistry() override;
+
+    /**
+     * @brief Register a service implementation
+     * @tparam T Interface type
+     * @param instance Service instance (must outlive registry)
+     * @param version API version
+     * @param providerId ID of plugin providing this service
+     * @return true if registration succeeded
+     */
+    template<typename T>
+    bool add(T* instance, int version = 1, const QString& providerId = {})
+    {
+        // Service instance must be convertible to QObject*
+        QObject* obj = dynamic_cast<QObject*>(instance);
+        if (!obj) {
+            obj = reinterpret_cast<QObject*>(instance);
+        }
+        return addService(typeid(T).name(), obj, version, providerId);
+    }
+
+    /**
+     * @brief Get a service implementation
+     * @tparam T Interface type
+     * @param minVersion Minimum required version (0 = any)
+     * @return Service instance or nullptr if not found/version mismatch
+     */
+    template<typename T>
+    T* get(int minVersion = 0)
+    {
+        QObject* obj = getService(typeid(T).name(), minVersion);
+        return reinterpret_cast<T*>(obj);
+    }
+
+    /**
+     * @brief Check if a service is available
+     * @tparam T Interface type
+     * @param minVersion Minimum required version
+     * @return true if service is available
+     */
+    template<typename T>
+    bool has(int minVersion = 0) const
+    {
+        return hasService(typeid(T).name(), minVersion);
+    }
+
+    /**
+     * @brief Get service version
+     * @tparam T Interface type
+     * @return Version number or -1 if not found
+     */
+    template<typename T>
+    int version() const
+    {
+        return serviceVersion(typeid(T).name());
+    }
+
+    /**
+     * @brief Remove a service
+     * @tparam T Interface type
+     */
+    template<typename T>
+    void remove()
+    {
+        removeService(typeid(T).name());
+    }
+
+    /**
+     * @brief Get all registered service names
+     * @return List of service type names
+     */
+    QStringList registeredServices() const;
+
+    /**
+     * @brief Get service entry details
+     * @param interfaceName Type name of interface
+     * @return Service entry or nullptr if not found
+     */
+    const ServiceEntry* entry(const QString& interfaceName) const;
+
+signals:
+    void serviceAdded(const QString& interfaceName);
+    void serviceRemoved(const QString& interfaceName);
+
+private:
+    bool addService(const char* typeName, QObject* instance, 
+                    int version, const QString& providerId);
+    QObject* getService(const char* typeName, int minVersion);
+    bool hasService(const char* typeName, int minVersion) const;
+    int serviceVersion(const char* typeName) const;
+    void removeService(const char* typeName);
+
+    mutable QMutex m_mutex;
+    QHash<QString, ServiceEntry> m_services;
+};
+
+} // namespace mpf
