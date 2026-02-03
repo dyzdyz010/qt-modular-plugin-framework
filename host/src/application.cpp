@@ -201,7 +201,8 @@ bool Application::loadMainQml()
         if (QFile::exists(fsPath)) {
             entryQml = QUrl::fromLocalFile(fsPath).toString();
         } else {
-            entryQml = "qrc:/qt/qml/MPF/Host/Main.qml";
+            // RESOURCE_PREFIX "/" means qrc:/MPF/Host/Main.qml
+            entryQml = "qrc:/MPF/Host/Main.qml";
         }
     }
     

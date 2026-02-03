@@ -69,6 +69,7 @@ target_link_libraries(mpf-host PRIVATE
 qt_add_qml_module(mpf-host
     URI MPF.Host
     VERSION 1.0
+    RESOURCE_PREFIX /
     QML_FILES
         qml/Main.qml
         qml/SideMenu.qml
