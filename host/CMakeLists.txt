@@ -7,7 +7,9 @@ set(CMAKE_AUTOMOC ON)
 
 # Find dependencies
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick)
-find_package(MPF REQUIRED)
+
+# SDK (header-only, direct path)
+set(MPF_SDK_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../foundation-sdk")
 
 # Generate version header
 configure_file(
@@ -53,6 +55,7 @@ add_executable(mpf-host
 target_include_directories(mpf-host PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_BINARY_DIR}/include
+    ${MPF_SDK_DIR}/include
 )
 
 target_link_libraries(mpf-host PRIVATE
@@ -60,7 +63,6 @@ target_link_libraries(mpf-host PRIVATE
     Qt6::Gui
     Qt6::Qml
     Qt6::Quick
-    MPF::foundation-sdk
 )
 
 # QML module
