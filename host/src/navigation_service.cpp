@@ -32,7 +32,7 @@ bool NavigationService::push(const QString& route, const QVariantMap& params)
 
     // Push to stack
     QVariant result;
-    QMetaObject::invokeMethod(sv, "push", 
+    QMetaObject::invokeMethod(sv, "navPush", 
         Q_RETURN_ARG(QVariant, result),
         Q_ARG(QVariant, component),
         Q_ARG(QVariant, QVariant::fromValue(params)));
@@ -57,7 +57,7 @@ bool NavigationService::pop()
     }
 
     QVariant result;
-    QMetaObject::invokeMethod(sv, "pop",
+    QMetaObject::invokeMethod(sv, "navPop",
         Q_RETURN_ARG(QVariant, result));
 
     if (result.isValid()) {
@@ -79,9 +79,9 @@ void NavigationService::popToRoot()
     QObject* sv = stackView();
     if (!sv) return;
 
-    QMetaObject::invokeMethod(sv, "pop",
-        Q_ARG(QVariant, QVariant()),  // null = pop to first
-        Q_ARG(int, 0)); // StackView.Immediate
+    QVariant result;
+    QMetaObject::invokeMethod(sv, "navPopToRoot",
+        Q_RETURN_ARG(QVariant, result));
     
     while (m_stack.size() > 1) {
         m_stack.pop();
@@ -106,7 +106,7 @@ bool NavigationService::replace(const QString& route, const QVariantMap& params)
     }
 
     QVariant result;
-    QMetaObject::invokeMethod(sv, "replace",
+    QMetaObject::invokeMethod(sv, "navReplace",
         Q_RETURN_ARG(QVariant, result),
         Q_ARG(QVariant, component),
         Q_ARG(QVariant, QVariant::fromValue(params)));

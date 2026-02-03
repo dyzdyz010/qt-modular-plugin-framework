@@ -1,10 +1,10 @@
 #include "qml_context.h"
 #include "service_registry.h"
-#include "navigation_service.h"
-#include "settings_service.h"
-#include "theme_service.h"
-#include "menu_service.h"
 #include <mpf/version.h>
+#include <mpf/interfaces/inavigation.h>
+#include <mpf/interfaces/isettings.h>
+#include <mpf/interfaces/itheme.h>
+#include <mpf/interfaces/imenu.h>
 
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -13,7 +13,7 @@ namespace mpf {
 
 QmlContext::QmlContext(ServiceRegistry* registry, QObject* parent)
     : QObject(parent)
-    , m_registry(registry)
+    , m_registry(static_cast<ServiceRegistryImpl*>(registry))
 {
 }
 
@@ -28,7 +28,7 @@ void QmlContext::setup(QQmlApplicationEngine* engine)
     engine->rootContext()->setContextProperty("Navigation", navigation());
     engine->rootContext()->setContextProperty("Settings", settings());
     engine->rootContext()->setContextProperty("Theme", theme());
-    engine->rootContext()->setContextProperty("Menu", menu());
+    engine->rootContext()->setContextProperty("AppMenu", appMenu());
 }
 
 QString QmlContext::version() const
@@ -38,27 +38,24 @@ QString QmlContext::version() const
 
 QObject* QmlContext::navigation() const
 {
-    // Get interface pointer and cast to QObject via the known implementation
-    auto* nav = m_registry->get<INavigation>();
-    return dynamic_cast<QObject*>(nav);
+    // Use getObject to get the stored QObject* directly,
+    // avoiding reinterpret_cast issues with multiple inheritance
+    return m_registry->getObject<INavigation>();
 }
 
 QObject* QmlContext::settings() const
 {
-    auto* svc = m_registry->get<ISettings>();
-    return dynamic_cast<QObject*>(svc);
+    return m_registry->getObject<ISettings>();
 }
 
 QObject* QmlContext::theme() const
 {
-    auto* svc = m_registry->get<ITheme>();
-    return dynamic_cast<QObject*>(svc);
+    return m_registry->getObject<ITheme>();
 }
 
-QObject* QmlContext::menu() const
+QObject* QmlContext::appMenu() const
 {
-    auto* svc = m_registry->get<IMenu>();
-    return dynamic_cast<QObject*>(svc);
+    return m_registry->getObject<IMenu>();
 }
 
 } // namespace mpf

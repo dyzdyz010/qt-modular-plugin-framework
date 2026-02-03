@@ -64,7 +64,7 @@ public:
     T* get(int minVersion = 0)
     {
         QObject* obj = getService(typeid(T).name(), minVersion);
-        return reinterpret_cast<T*>(obj);
+        return dynamic_cast<T*>(obj);
     }
 
     /**
@@ -112,6 +112,22 @@ public:
      * @return Service entry or nullptr if not found
      */
     const ServiceEntry* entry(const QString& interfaceName) const;
+
+    /**
+     * @brief Get service as QObject* directly (for QML exposure)
+     *
+     * This avoids the reinterpret_cast issue in the get<T>() template
+     * when dealing with multiple inheritance.
+     *
+     * @tparam T Interface type
+     * @param minVersion Minimum required version
+     * @return QObject* or nullptr if not found
+     */
+    template<typename T>
+    QObject* getObject(int minVersion = 0)
+    {
+        return getService(typeid(T).name(), minVersion);
+    }
 
 signals:
     void serviceAdded(const QString& interfaceName);

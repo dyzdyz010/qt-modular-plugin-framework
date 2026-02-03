@@ -15,7 +15,7 @@ Page {
     // Orders model
     OrderModel {
         id: orderModel
-        // service is automatically injected via OrdersService singleton
+    service: OrdersService
     }
     
     header: ToolBar {
@@ -105,7 +105,7 @@ Page {
                 Navigation.push("orders/detail", {orderId: model.id})
             }
             
-            onStatusChanged: function(newStatus) {
+            onStatusChangeRequested: function(newStatus) {
                 OrdersService.updateStatus(model.id, newStatus)
             }
             

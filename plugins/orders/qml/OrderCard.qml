@@ -15,7 +15,7 @@ Rectangle {
     property date createdAt
     
     signal clicked()
-    signal statusChanged(string newStatus)
+    signal statusChangeRequested(string newStatus)
     signal deleteRequested()
     
     implicitHeight: 120
@@ -142,7 +142,7 @@ Rectangle {
                     
                     onActivated: function(index) {
                         if (model[index] !== root.status) {
-                            root.statusChanged(model[index])
+                            root.statusChangeRequested(model[index])
                         }
                     }
                 }

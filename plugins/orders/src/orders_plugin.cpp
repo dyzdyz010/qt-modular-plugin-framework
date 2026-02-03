@@ -98,8 +98,8 @@ void OrdersPlugin::registerRoutes()
 {
     auto* nav = m_registry->get<mpf::INavigation>();
     if (nav) {
-        nav->registerRoute("orders", "qrc:/YourCo/Orders/OrdersPage.qml");
-        nav->registerRoute("orders/detail", "qrc:/YourCo/Orders/OrderDetailPage.qml");
+        nav->registerRoute("orders", "qrc:/YourCo/Orders/qml/OrdersPage.qml");
+        nav->registerRoute("orders/detail", "qrc:/YourCo/Orders/qml/OrderDetailPage.qml");
         MPF_LOG_DEBUG("OrdersPlugin", "Registered navigation routes");
     }
     
@@ -115,7 +115,11 @@ void OrdersPlugin::registerRoutes()
         item.order = 10;
         item.group = "Business";
         
-        menu->registerItem(item);
+        bool registered = menu->registerItem(item);
+        if (!registered) {
+            MPF_LOG_WARNING("OrdersPlugin", "Failed to register menu item");
+            return;
+        }
         
         // Update badge with order count
         menu->setBadge("orders", QString::number(m_ordersService->getOrderCount()));
@@ -126,6 +130,8 @@ void OrdersPlugin::registerRoutes()
         });
         
         MPF_LOG_DEBUG("OrdersPlugin", "Registered menu item");
+    } else {
+        MPF_LOG_WARNING("OrdersPlugin", "Menu service not available");
     }
 }
 

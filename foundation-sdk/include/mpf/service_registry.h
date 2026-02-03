@@ -27,7 +27,8 @@ public:
     template<typename T>
     T* get(int minVersion = 0)
     {
-        return reinterpret_cast<T*>(getService(typeid(T).name(), minVersion));
+        QObject* obj = getService(typeid(T).name(), minVersion);
+        return dynamic_cast<T*>(obj);
     }
 
     /**

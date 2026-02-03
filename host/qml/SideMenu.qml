@@ -92,7 +92,7 @@ Rectangle {
             clip: true
             spacing: 4
             
-            model: Menu ? Menu.items : []
+            model: AppMenu ? AppMenu.items : []
             
             delegate: MenuItemCustom {
                 width: menuList.width

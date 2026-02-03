@@ -1,10 +1,9 @@
 #pragma once
 
 #include <QAbstractListModel>
+#include "orders_service.h"
 
 namespace orders {
-
-class OrdersService;
 
 /**
  * @brief List model for orders
@@ -16,6 +15,7 @@ class OrderModel : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
     Q_PROPERTY(QString filterStatus READ filterStatus WRITE setFilterStatus NOTIFY filterStatusChanged)
+    Q_PROPERTY(orders::OrdersService* service READ service WRITE setService NOTIFY serviceChanged)
 
 public:
     enum Roles {
@@ -30,8 +30,12 @@ public:
         TotalRole
     };
 
+    explicit OrderModel(QObject* parent = nullptr);
     explicit OrderModel(OrdersService* service, QObject* parent = nullptr);
     ~OrderModel() override;
+    OrdersService* service() const { return m_service; }
+    void setService(OrdersService* service);
+
 
     // QAbstractListModel interface
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -49,6 +53,7 @@ public:
 signals:
     void countChanged();
     void filterStatusChanged();
+    void serviceChanged();
 
 private slots:
     void onOrdersChanged();
@@ -56,7 +61,7 @@ private slots:
 private:
     void updateFilteredOrders();
 
-    OrdersService* m_service;
+    OrdersService* m_service = nullptr;
     QVariantList m_filteredOrders;
     QString m_filterStatus;
 };

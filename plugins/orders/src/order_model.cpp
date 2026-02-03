@@ -3,12 +3,15 @@
 
 namespace orders {
 
+OrderModel::OrderModel(QObject* parent)
+    : QAbstractListModel(parent)
+{
+}
+
 OrderModel::OrderModel(OrdersService* service, QObject* parent)
     : QAbstractListModel(parent)
-    , m_service(service)
 {
-    connect(m_service, &OrdersService::ordersChanged, this, &OrderModel::onOrdersChanged);
-    updateFilteredOrders();
+    setService(service);
 }
 
 OrderModel::~OrderModel() = default;
@@ -75,6 +78,26 @@ void OrderModel::setFilterStatus(const QString& status)
     }
 }
 
+void OrderModel::setService(OrdersService* service)
+{
+    if (m_service == service) {
+        return;
+    }
+
+    if (m_service) {
+        disconnect(m_service, nullptr, this, nullptr);
+    }
+
+    m_service = service;
+
+    if (m_service) {
+        connect(m_service, &OrdersService::ordersChanged, this, &OrderModel::onOrdersChanged);
+    }
+
+    updateFilteredOrders();
+    emit serviceChanged();
+}
+
 void OrderModel::refresh()
 {
     updateFilteredOrders();
@@ -96,8 +119,10 @@ void OrderModel::onOrdersChanged()
 void OrderModel::updateFilteredOrders()
 {
     beginResetModel();
-    
-    if (m_filterStatus.isEmpty()) {
+
+    if (!m_service) {
+        m_filteredOrders = {};
+    } else if (m_filterStatus.isEmpty()) {
         m_filteredOrders = m_service->getAllOrders();
     } else {
         m_filteredOrders = m_service->getOrdersByStatus(m_filterStatus);

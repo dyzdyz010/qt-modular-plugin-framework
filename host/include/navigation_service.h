@@ -20,14 +20,14 @@ public:
     ~NavigationService() override;
 
     // INavigation interface
-    bool push(const QString& route, const QVariantMap& params = {}) override;
-    bool pop() override;
-    void popToRoot() override;
-    bool replace(const QString& route, const QVariantMap& params = {}) override;
-    QString currentRoute() const override;
-    int stackDepth() const override;
-    bool canGoBack() const override;
-    void registerRoute(const QString& route, const QString& qmlComponent) override;
+    Q_INVOKABLE bool push(const QString& route, const QVariantMap& params = {}) override;
+    Q_INVOKABLE bool pop() override;
+    Q_INVOKABLE void popToRoot() override;
+    Q_INVOKABLE bool replace(const QString& route, const QVariantMap& params = {}) override;
+    Q_INVOKABLE QString currentRoute() const override;
+    Q_INVOKABLE int stackDepth() const override;
+    Q_INVOKABLE bool canGoBack() const override;
+    Q_INVOKABLE void registerRoute(const QString& route, const QString& qmlComponent) override;
 
     /**
      * @brief Set the StackView object ID in QML

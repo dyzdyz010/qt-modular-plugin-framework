@@ -138,8 +138,8 @@ void Application::setupQmlContext()
     m_engine->addImportPath(m_qmlPath);
     m_engine->addImportPath("qrc:/");
     
-    // Add host QML directory for component discovery
-    QString hostQmlDir = QCoreApplication::applicationDirPath() + "/../host/MPF/Host/qml";
+    // Add host QML module output directory for component discovery
+    QString hostQmlDir = m_qmlPath + "/MPF/Host/qml";
     if (QDir(hostQmlDir).exists()) {
         m_engine->addImportPath(hostQmlDir);
     }
@@ -197,12 +197,12 @@ bool Application::loadMainQml()
     // Fall back to host's Main.qml
     if (entryQml.isEmpty()) {
         // Try filesystem path first (development), then qrc (release)
-        QString fsPath = QCoreApplication::applicationDirPath() + "/../host/MPF/Host/qml/Main.qml";
+        QString fsPath = m_qmlPath + "/MPF/Host/qml/Main.qml";
         if (QFile::exists(fsPath)) {
             entryQml = QUrl::fromLocalFile(fsPath).toString();
         } else {
-            // RESOURCE_PREFIX "/" means qrc:/MPF/Host/Main.qml
-            entryQml = "qrc:/MPF/Host/Main.qml";
+            // RESOURCE_PREFIX "/" means qrc:/MPF/Host/qml/Main.qml
+            entryQml = "qrc:/MPF/Host/qml/Main.qml";
         }
     }
     

@@ -8,6 +8,7 @@ class QQmlApplicationEngine;
 namespace mpf {
 
 class ServiceRegistry;
+class ServiceRegistryImpl;
 class INavigation;
 class ISettings;
 class ITheme;
@@ -26,7 +27,7 @@ class QmlContext : public QObject
     Q_PROPERTY(QObject* navigation READ navigation CONSTANT)
     Q_PROPERTY(QObject* settings READ settings CONSTANT)
     Q_PROPERTY(QObject* theme READ theme CONSTANT)
-    Q_PROPERTY(QObject* menu READ menu CONSTANT)
+    Q_PROPERTY(QObject* appMenu READ appMenu CONSTANT)
 
 public:
     explicit QmlContext(ServiceRegistry* registry, QObject* parent = nullptr);
@@ -41,10 +42,10 @@ public:
     QObject* navigation() const;
     QObject* settings() const;
     QObject* theme() const;
-    QObject* menu() const;
+    QObject* appMenu() const;
 
 private:
-    ServiceRegistry* m_registry;
+    ServiceRegistryImpl* m_registry;
 };
 
 } // namespace mpf

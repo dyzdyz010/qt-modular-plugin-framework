@@ -44,6 +44,24 @@ struct ThemeData
 class ThemeService : public QObject, public ITheme
 {
     Q_OBJECT
+    Q_PROPERTY(QString name READ name NOTIFY themeChanged)
+    Q_PROPERTY(bool isDark READ isDark NOTIFY themeChanged)
+    Q_PROPERTY(QColor primaryColor READ primaryColor NOTIFY themeChanged)
+    Q_PROPERTY(QColor accentColor READ accentColor NOTIFY themeChanged)
+    Q_PROPERTY(QColor backgroundColor READ backgroundColor NOTIFY themeChanged)
+    Q_PROPERTY(QColor surfaceColor READ surfaceColor NOTIFY themeChanged)
+    Q_PROPERTY(QColor textColor READ textColor NOTIFY themeChanged)
+    Q_PROPERTY(QColor textSecondaryColor READ textSecondaryColor NOTIFY themeChanged)
+    Q_PROPERTY(QColor errorColor READ errorColor NOTIFY themeChanged)
+    Q_PROPERTY(QColor warningColor READ warningColor NOTIFY themeChanged)
+    Q_PROPERTY(QColor successColor READ successColor NOTIFY themeChanged)
+    Q_PROPERTY(int spacingTiny READ spacingTiny NOTIFY themeChanged)
+    Q_PROPERTY(int spacingSmall READ spacingSmall NOTIFY themeChanged)
+    Q_PROPERTY(int spacingMedium READ spacingMedium NOTIFY themeChanged)
+    Q_PROPERTY(int spacingLarge READ spacingLarge NOTIFY themeChanged)
+    Q_PROPERTY(int radiusSmall READ radiusSmall NOTIFY themeChanged)
+    Q_PROPERTY(int radiusMedium READ radiusMedium NOTIFY themeChanged)
+    Q_PROPERTY(int radiusLarge READ radiusLarge NOTIFY themeChanged)
 
 public:
     explicit ThemeService(QObject* parent = nullptr);
@@ -72,8 +90,8 @@ public:
     int radiusMedium() const override { return m_current.radiusMedium; }
     int radiusLarge() const override { return m_current.radiusLarge; }
 
-    void setTheme(const QString& themeName) override;
-    QStringList availableThemes() const override;
+    Q_INVOKABLE void setTheme(const QString& themeName) override;
+    Q_INVOKABLE QStringList availableThemes() const override;
 
     /**
      * @brief Register a custom theme
