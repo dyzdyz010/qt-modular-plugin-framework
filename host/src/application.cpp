@@ -18,6 +18,10 @@
 #include <QQmlContext>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
 #include <QUrl>
 #include <QStandardPaths>
 #include <QDebug>
@@ -116,6 +120,43 @@ void Application::setupPaths()
     
     // Create config directory if needed
     QDir().mkpath(m_configPath);
+
+    // Optional override via config file
+    QString pathsConfig = QDir(m_configPath).filePath("paths.json");
+    if (QFile::exists(pathsConfig)) {
+        QFile file(pathsConfig);
+        if (file.open(QIODevice::ReadOnly)) {
+            QJsonParseError error{};
+            QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &error);
+            if (error.error == QJsonParseError::NoError && doc.isObject()) {
+                QJsonObject obj = doc.object();
+                QString baseDir = QFileInfo(pathsConfig).absolutePath();
+                auto resolvePath = [&](const QString& key, QString* target) {
+                    QJsonValue value = obj.value(key);
+                    if (!value.isString()) {
+                        return;
+                    }
+                    QString raw = value.toString().trimmed();
+                    if (raw.isEmpty()) {
+                        return;
+                    }
+                    QString resolved = QDir::isAbsolutePath(raw)
+                        ? raw
+                        : QDir(baseDir).filePath(raw);
+                    *target = QDir(resolved).absolutePath();
+                };
+
+                resolvePath("pluginPath", &m_pluginPath);
+                resolvePath("qmlPath", &m_qmlPath);
+                qDebug() << "Loaded paths config:" << pathsConfig;
+            } else {
+                qWarning() << "Invalid paths config:" << pathsConfig
+                           << "-" << error.errorString();
+            }
+        } else {
+            qWarning() << "Failed to open paths config:" << pathsConfig;
+        }
+    }
     
     qDebug() << "Plugin path:" << m_pluginPath;
     qDebug() << "QML path:" << m_qmlPath;
