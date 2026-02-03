@@ -1,52 +1,22 @@
 #pragma once
 
-#include <QObject>
-#include <QColor>
-#include <QFont>
 #include <QString>
+#include <QStringList>
+#include <QColor>
 
 namespace mpf {
 
 /**
- * @brief Theme/Styling interface
+ * @brief Theme service interface (pure abstract)
  * 
- * Provides centralized theming for UI components.
- * Plugins should bind to theme properties for consistent styling.
+ * Provides theming capabilities for consistent UI appearance.
  */
-class ITheme : public QObject
+class ITheme
 {
-    Q_OBJECT
-
-    Q_PROPERTY(QString name READ name NOTIFY themeChanged)
-    Q_PROPERTY(bool isDark READ isDark NOTIFY themeChanged)
-    
-    // Colors
-    Q_PROPERTY(QColor primaryColor READ primaryColor NOTIFY themeChanged)
-    Q_PROPERTY(QColor accentColor READ accentColor NOTIFY themeChanged)
-    Q_PROPERTY(QColor backgroundColor READ backgroundColor NOTIFY themeChanged)
-    Q_PROPERTY(QColor surfaceColor READ surfaceColor NOTIFY themeChanged)
-    Q_PROPERTY(QColor textColor READ textColor NOTIFY themeChanged)
-    Q_PROPERTY(QColor textSecondaryColor READ textSecondaryColor NOTIFY themeChanged)
-    Q_PROPERTY(QColor errorColor READ errorColor NOTIFY themeChanged)
-    Q_PROPERTY(QColor warningColor READ warningColor NOTIFY themeChanged)
-    Q_PROPERTY(QColor successColor READ successColor NOTIFY themeChanged)
-    
-    // Spacing
-    Q_PROPERTY(int spacingTiny READ spacingTiny NOTIFY themeChanged)
-    Q_PROPERTY(int spacingSmall READ spacingSmall NOTIFY themeChanged)
-    Q_PROPERTY(int spacingMedium READ spacingMedium NOTIFY themeChanged)
-    Q_PROPERTY(int spacingLarge READ spacingLarge NOTIFY themeChanged)
-    
-    // Border radius
-    Q_PROPERTY(int radiusSmall READ radiusSmall NOTIFY themeChanged)
-    Q_PROPERTY(int radiusMedium READ radiusMedium NOTIFY themeChanged)
-    Q_PROPERTY(int radiusLarge READ radiusLarge NOTIFY themeChanged)
-
 public:
-    using QObject::QObject;
     virtual ~ITheme() = default;
 
-    // Theme info
+    // Identity
     virtual QString name() const = 0;
     virtual bool isDark() const = 0;
 
@@ -73,17 +43,10 @@ public:
     virtual int radiusLarge() const = 0;
 
     // Theme switching
-    Q_INVOKABLE virtual void setTheme(const QString& themeName) = 0;
-    Q_INVOKABLE virtual QStringList availableThemes() const = 0;
+    virtual void setTheme(const QString& themeName) = 0;
+    virtual QStringList availableThemes() const = 0;
 
-signals:
-    void themeChanged();
-
-public:
     static constexpr int apiVersion() { return 1; }
 };
 
 } // namespace mpf
-
-#define MPF_ITheme_iid "com.mpf.ITheme/1.0"
-Q_DECLARE_INTERFACE(mpf::ITheme, MPF_ITheme_iid)

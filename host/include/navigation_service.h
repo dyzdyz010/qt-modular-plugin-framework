@@ -11,7 +11,7 @@ namespace mpf {
 /**
  * @brief Default navigation service implementation
  */
-class NavigationService : public INavigation
+class NavigationService : public QObject, public INavigation
 {
     Q_OBJECT
 
@@ -33,6 +33,10 @@ public:
      * @brief Set the StackView object ID in QML
      */
     void setStackViewId(const QString& id) { m_stackViewId = id; }
+
+signals:
+    void navigationChanged(const QString& route, const QVariantMap& params);
+    void canGoBackChanged(bool canGoBack);
 
 private:
     QObject* stackView() const;

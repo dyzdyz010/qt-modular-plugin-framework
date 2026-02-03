@@ -5,7 +5,7 @@
 namespace mpf {
 
 SettingsService::SettingsService(QObject* parent)
-    : ISettings(parent)
+    : QObject(parent)
 {
     QString configPath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     QDir().mkpath(configPath);
@@ -13,7 +13,7 @@ SettingsService::SettingsService(QObject* parent)
 }
 
 SettingsService::SettingsService(const QString& configPath, QObject* parent)
-    : ISettings(parent)
+    : QObject(parent)
 {
     QDir().mkpath(configPath);
     m_settings = std::make_unique<QSettings>(configPath + "/settings.ini", QSettings::IniFormat);

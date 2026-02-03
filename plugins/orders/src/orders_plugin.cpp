@@ -108,7 +108,7 @@ void OrdersPlugin::registerRoutes()
     if (menu) {
         mpf::MenuItem item;
         item.id = "orders";
-        item.title = tr("Orders");
+        item.label = tr("Orders");
         item.icon = "📦";
         item.route = "orders";
         item.pluginId = "com.yourco.orders";

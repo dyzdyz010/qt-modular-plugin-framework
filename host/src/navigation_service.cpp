@@ -9,7 +9,7 @@
 namespace mpf {
 
 NavigationService::NavigationService(QQmlApplicationEngine* engine, QObject* parent)
-    : INavigation(parent)
+    : QObject(parent)
     , m_engine(engine)
 {
 }

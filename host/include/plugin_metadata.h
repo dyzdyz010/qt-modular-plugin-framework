@@ -1,6 +1,5 @@
 #pragma once
 
-#include <mpf/mpf_export.h>
 #include <QString>
 #include <QStringList>
 #include <QJsonObject>
@@ -11,7 +10,7 @@ namespace mpf {
 /**
  * @brief Plugin dependency declaration
  */
-struct MPF_FOUNDATION_SDK_EXPORT PluginDependency
+struct PluginDependency
 {
     enum class Type {
         Plugin,     // Depends on another plugin
@@ -32,7 +31,7 @@ struct MPF_FOUNDATION_SDK_EXPORT PluginDependency
  * 
  * Contains all information about a plugin extracted from its metadata JSON.
  */
-class MPF_FOUNDATION_SDK_EXPORT PluginMetadata
+class PluginMetadata
 {
 public:
     PluginMetadata() = default;

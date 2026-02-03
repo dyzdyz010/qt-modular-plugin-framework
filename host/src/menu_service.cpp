@@ -5,7 +5,7 @@
 namespace mpf {
 
 MenuService::MenuService(QObject* parent)
-    : IMenu(parent)
+    : QObject(parent)
 {
 }
 
@@ -95,7 +95,7 @@ bool MenuService::updateItem(const QString& id, const QVariantMap& updates)
     int idx = m_indexMap[id];
     MenuItem& item = m_items[idx];
     
-    if (updates.contains("title")) item.title = updates["title"].toString();
+    if (updates.contains("title")) item.label = updates["label"].toString();
     if (updates.contains("icon")) item.icon = updates["icon"].toString();
     if (updates.contains("route")) item.route = updates["route"].toString();
     if (updates.contains("order")) {
@@ -179,7 +179,7 @@ void MenuService::sortItems()
             // First by group, then by order, then by title
             if (a.group != b.group) return a.group < b.group;
             if (a.order != b.order) return a.order < b.order;
-            return a.title < b.title;
+            return a.label < b.label;
         });
 }
 

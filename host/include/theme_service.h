@@ -41,7 +41,7 @@ struct ThemeData
 /**
  * @brief Default theme service implementation
  */
-class ThemeService : public ITheme
+class ThemeService : public QObject, public ITheme
 {
     Q_OBJECT
 
@@ -84,6 +84,9 @@ public:
      * @brief Load themes from JSON file
      */
     bool loadThemes(const QString& path);
+
+signals:
+    void themeChanged();
 
 private:
     ThemeData m_current;

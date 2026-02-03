@@ -10,10 +10,9 @@ namespace mpf {
 /**
  * @brief Default menu service implementation
  */
-class MenuService : public IMenu
+class MenuService : public QObject, public IMenu
 {
     Q_OBJECT
-    Q_INTERFACES(mpf::IMenu)
 
 public:
     explicit MenuService(QObject* parent = nullptr);
@@ -32,6 +31,9 @@ public:
     QVariantList itemsInGroup(const QString& group) const override;
     QStringList groups() const override;
     int count() const override;
+
+signals:
+    void menuChanged();
 
 private:
     void sortItems();

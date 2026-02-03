@@ -1,4 +1,4 @@
-#include "mpf/logger.h"
+#include "logger.h"
 #include <QDebug>
 #include <QDateTime>
 
@@ -48,7 +48,6 @@ void Logger::log(Level level, const QString& tag, const QString& message)
         qWarning().noquote() << formatted;
         break;
     case Level::Error:
-    case Level::Fatal:
         qCritical().noquote() << formatted;
         break;
     }
@@ -113,7 +112,6 @@ QString Logger::levelToString(Level level)
     case Level::Info:    return "INFO ";
     case Level::Warning: return "WARN ";
     case Level::Error:   return "ERROR";
-    case Level::Fatal:   return "FATAL";
     }
     return "?????";
 }

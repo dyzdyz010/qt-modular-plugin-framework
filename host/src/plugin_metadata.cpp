@@ -1,4 +1,4 @@
-#include "mpf/plugin_metadata.h"
+#include "plugin_metadata.h"
 #include <QJsonArray>
 
 namespace mpf {

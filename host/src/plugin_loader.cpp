@@ -1,6 +1,6 @@
 #include "plugin_loader.h"
 #include <mpf/interfaces/iplugin.h>
-#include <mpf/plugin_metadata.h>
+#include "plugin_metadata.h"
 
 #include <QFileInfo>
 #include <QJsonDocument>

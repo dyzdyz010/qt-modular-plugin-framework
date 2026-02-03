@@ -9,10 +9,25 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick)
 find_package(MPF REQUIRED)
 
+# Generate version header
+configure_file(
+    cmake/version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/include/mpf/version.h
+    @ONLY
+)
+
 # Application
 add_executable(mpf-host
+    # Main
     src/main.cpp
     src/application.cpp
+    
+    # Core (moved from SDK)
+    src/service_registry.cpp
+    src/logger.cpp
+    src/plugin_metadata.cpp
+    
+    # Services
     src/plugin_manager.cpp
     src/plugin_loader.cpp
     src/navigation_service.cpp
@@ -20,7 +35,12 @@ add_executable(mpf-host
     src/theme_service.cpp
     src/menu_service.cpp
     src/qml_context.cpp
+    
+    # Headers
     include/application.h
+    include/service_registry.h
+    include/logger.h
+    include/plugin_metadata.h
     include/plugin_manager.h
     include/plugin_loader.h
     include/navigation_service.h
@@ -32,6 +52,7 @@ add_executable(mpf-host
 
 target_include_directories(mpf-host PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_BINARY_DIR}/include
 )
 
 target_link_libraries(mpf-host PRIVATE

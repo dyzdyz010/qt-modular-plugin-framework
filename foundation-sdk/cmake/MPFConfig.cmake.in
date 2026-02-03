@@ -1,9 +1,10 @@
 @PACKAGE_INIT@
 
-include(CMakeFindDependencyMacro)
-
-find_dependency(Qt6 COMPONENTS Core Gui Qml Quick)
-
 include("${CMAKE_CURRENT_LIST_DIR}/MPFTargets.cmake")
+
+# Create alias for easier linking
+if(NOT TARGET MPF::foundation-sdk)
+    add_library(MPF::foundation-sdk ALIAS MPF::mpf-foundation-sdk)
+endif()
 
 check_required_components(MPF)

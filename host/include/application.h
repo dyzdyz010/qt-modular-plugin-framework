@@ -1,5 +1,6 @@
 #pragma once
 
+#include "service_registry.h"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <memory>
@@ -7,7 +8,6 @@
 namespace mpf {
 
 class PluginManager;
-class ServiceRegistry;
 class Logger;
 
 /**
@@ -73,7 +73,7 @@ private:
 
     std::unique_ptr<QGuiApplication> m_app;
     std::unique_ptr<QQmlApplicationEngine> m_engine;
-    std::unique_ptr<ServiceRegistry> m_registry;
+    std::unique_ptr<ServiceRegistryImpl> m_registry;
     std::unique_ptr<PluginManager> m_pluginManager;
     std::unique_ptr<Logger> m_logger;
 

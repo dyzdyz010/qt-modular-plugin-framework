@@ -11,7 +11,7 @@ namespace mpf {
  * 
  * Uses QSettings for persistent storage with plugin namespace isolation.
  */
-class SettingsService : public ISettings
+class SettingsService : public QObject, public ISettings
 {
     Q_OBJECT
 
@@ -31,6 +31,9 @@ public:
     bool contains(const QString& pluginId, const QString& key) const override;
     QStringList keys(const QString& pluginId) const override;
     void sync() override;
+
+signals:
+    void settingChanged(const QString& pluginId, const QString& key, const QVariant& value);
 
 private:
     QString makeKey(const QString& pluginId, const QString& key) const;

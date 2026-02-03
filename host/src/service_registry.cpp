@@ -1,20 +1,20 @@
-#include "mpf/service_registry.h"
+#include "service_registry.h"
 #include <QDebug>
 
 namespace mpf {
 
-ServiceRegistry::ServiceRegistry(QObject* parent)
+ServiceRegistryImpl::ServiceRegistryImpl(QObject* parent)
     : QObject(parent)
 {
 }
 
-ServiceRegistry::~ServiceRegistry()
+ServiceRegistryImpl::~ServiceRegistryImpl()
 {
     QMutexLocker locker(&m_mutex);
     m_services.clear();
 }
 
-bool ServiceRegistry::addService(const char* typeName, QObject* instance, 
+bool ServiceRegistryImpl::addService(const char* typeName, QObject* instance, 
                                   int version, const QString& providerId)
 {
     if (!instance) {
@@ -47,7 +47,7 @@ bool ServiceRegistry::addService(const char* typeName, QObject* instance,
     return true;
 }
 
-QObject* ServiceRegistry::getService(const char* typeName, int minVersion)
+QObject* ServiceRegistryImpl::getService(const char* typeName, int minVersion)
 {
     QString name = QString::fromLatin1(typeName);
     
@@ -68,7 +68,7 @@ QObject* ServiceRegistry::getService(const char* typeName, int minVersion)
     return it->instance;
 }
 
-bool ServiceRegistry::hasService(const char* typeName, int minVersion) const
+bool ServiceRegistryImpl::hasService(const char* typeName, int minVersion) const
 {
     QString name = QString::fromLatin1(typeName);
     
@@ -86,7 +86,7 @@ bool ServiceRegistry::hasService(const char* typeName, int minVersion) const
     return true;
 }
 
-int ServiceRegistry::serviceVersion(const char* typeName) const
+int ServiceRegistryImpl::serviceVersion(const char* typeName) const
 {
     QString name = QString::fromLatin1(typeName);
     
@@ -100,7 +100,7 @@ int ServiceRegistry::serviceVersion(const char* typeName) const
     return it->version;
 }
 
-void ServiceRegistry::removeService(const char* typeName)
+void ServiceRegistryImpl::removeService(const char* typeName)
 {
     QString name = QString::fromLatin1(typeName);
     
@@ -113,13 +113,13 @@ void ServiceRegistry::removeService(const char* typeName)
     }
 }
 
-QStringList ServiceRegistry::registeredServices() const
+QStringList ServiceRegistryImpl::registeredServices() const
 {
     QMutexLocker locker(&m_mutex);
     return m_services.keys();
 }
 
-const ServiceEntry* ServiceRegistry::entry(const QString& interfaceName) const
+const ServiceEntry* ServiceRegistryImpl::entry(const QString& interfaceName) const
 {
     QMutexLocker locker(&m_mutex);
     

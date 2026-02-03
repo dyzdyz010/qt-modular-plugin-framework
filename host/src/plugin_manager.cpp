@@ -1,7 +1,7 @@
 #include "plugin_manager.h"
 #include "plugin_loader.h"
-#include <mpf/service_registry.h>
-#include <mpf/plugin_metadata.h>
+#include "service_registry.h"
+#include "plugin_metadata.h"
 #include <mpf/interfaces/iplugin.h>
 
 #include <QDir>

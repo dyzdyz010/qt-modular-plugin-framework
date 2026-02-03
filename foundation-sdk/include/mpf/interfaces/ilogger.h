@@ -1,59 +1,50 @@
 #pragma once
 
-#include <QObject>
 #include <QString>
 
 namespace mpf {
 
 /**
- * @brief Logging interface
+ * @brief Logger interface (pure abstract)
  * 
- * Plugins should use this for logging instead of qDebug directly.
- * This allows centralized log management, filtering, and routing.
+ * Provides logging capabilities for plugins.
  */
 class ILogger
 {
 public:
-    virtual ~ILogger() = default;
-
     enum class Level {
         Trace,
         Debug,
         Info,
         Warning,
-        Error,
-        Fatal
+        Error
     };
 
+    virtual ~ILogger() = default;
+
+    /**
+     * @brief Log a message
+     */
     virtual void log(Level level, const QString& tag, const QString& message) = 0;
 
-    // Convenience methods
-    virtual void trace(const QString& tag, const QString& message) {
-        log(Level::Trace, tag, message);
-    }
-    virtual void debug(const QString& tag, const QString& message) {
-        log(Level::Debug, tag, message);
-    }
-    virtual void info(const QString& tag, const QString& message) {
-        log(Level::Info, tag, message);
-    }
-    virtual void warning(const QString& tag, const QString& message) {
-        log(Level::Warning, tag, message);
-    }
-    virtual void error(const QString& tag, const QString& message) {
-        log(Level::Error, tag, message);
-    }
-    virtual void fatal(const QString& tag, const QString& message) {
-        log(Level::Fatal, tag, message);
-    }
-
+    /**
+     * @brief Set minimum log level
+     */
     virtual void setMinLevel(Level level) = 0;
+
+    /**
+     * @brief Get minimum log level
+     */
     virtual Level minLevel() const = 0;
+
+    // Convenience methods
+    void trace(const QString& tag, const QString& msg) { log(Level::Trace, tag, msg); }
+    void debug(const QString& tag, const QString& msg) { log(Level::Debug, tag, msg); }
+    void info(const QString& tag, const QString& msg) { log(Level::Info, tag, msg); }
+    void warning(const QString& tag, const QString& msg) { log(Level::Warning, tag, msg); }
+    void error(const QString& tag, const QString& msg) { log(Level::Error, tag, msg); }
 
     static constexpr int apiVersion() { return 1; }
 };
 
 } // namespace mpf
-
-#define MPF_ILogger_iid "com.mpf.ILogger/1.0"
-Q_DECLARE_INTERFACE(mpf::ILogger, MPF_ILogger_iid)

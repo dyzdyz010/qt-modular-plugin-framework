@@ -79,7 +79,7 @@ ThemeData ThemeData::darkTheme()
 // ThemeService
 
 ThemeService::ThemeService(QObject* parent)
-    : ITheme(parent)
+    : QObject(parent)
 {
     // Register built-in themes
     registerTheme(ThemeData::lightTheme());

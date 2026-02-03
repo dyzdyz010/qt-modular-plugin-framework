@@ -1,15 +1,15 @@
 #include "application.h"
 #include "plugin_manager.h"
 #include "plugin_loader.h"
-#include <mpf/plugin_metadata.h>
+#include "plugin_metadata.h"
 #include "navigation_service.h"
 #include "settings_service.h"
 #include "theme_service.h"
 #include "menu_service.h"
 #include "qml_context.h"
 
-#include <mpf/service_registry.h>
-#include <mpf/logger.h>
+#include "service_registry.h"
+#include "logger.h"
 #include <mpf/interfaces/inavigation.h>
 #include <mpf/interfaces/isettings.h>
 #include <mpf/interfaces/itheme.h>
@@ -54,7 +54,7 @@ bool Application::initialize()
     setupLogging();
     
     // Create service registry
-    m_registry = std::make_unique<ServiceRegistry>(this);
+    m_registry = std::make_unique<ServiceRegistryImpl>(this);
     
     // Create and register core services
     auto* navigation = new NavigationService(nullptr, this);

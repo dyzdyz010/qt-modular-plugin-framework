@@ -1,69 +1,32 @@
 #pragma once
 
-#include <mpf/mpf_export.h>
-#include "mpf/interfaces/ilogger.h"
-#include <QObject>
-#include <QMutex>
-#include <QString>
-#include <functional>
+#include <mpf/interfaces/ilogger.h>
+#include <QDebug>
 
 namespace mpf {
 
 /**
- * @brief Default logger implementation
- * 
- * Routes logs to Qt's message system with formatting.
- * Can be replaced with custom implementation via ServiceRegistry.
+ * @brief Global logger access (set by host at startup)
  */
-class MPF_FOUNDATION_SDK_EXPORT Logger : public QObject, public ILogger
+class LoggerAccess
 {
-    Q_OBJECT
-    Q_INTERFACES(mpf::ILogger)
-
 public:
-    using LogHandler = std::function<void(Level, const QString&, const QString&)>;
-
-    explicit Logger(QObject* parent = nullptr);
-    ~Logger() override;
-
-    // ILogger interface
-    void log(Level level, const QString& tag, const QString& message) override;
-    void setMinLevel(Level level) override;
-    Level minLevel() const override;
-
-    // Custom handler
-    void setHandler(LogHandler handler);
-
-    // Formatting
-    void setFormat(const QString& format);
-    QString format() const;
-
-    // Static convenience
-    static Logger* instance();
-    static void setInstance(Logger* logger);
-
+    static ILogger* instance() { return s_logger; }
+    static void setInstance(ILogger* logger) { s_logger = logger; }
 private:
-    QString formatMessage(Level level, const QString& tag, const QString& message);
-    static QString levelToString(Level level);
-
-    Level m_minLevel = Level::Debug;
-    QString m_format = "[%level%] [%tag%] %message%";
-    LogHandler m_handler;
-    mutable QMutex m_mutex;
-
-    static Logger* s_instance;
+    static inline ILogger* s_logger = nullptr;
 };
 
-// Convenience macros
-#define MPF_LOG_TRACE(tag, msg) \
-    if (auto* _logger = mpf::Logger::instance()) _logger->trace(tag, msg)
-#define MPF_LOG_DEBUG(tag, msg) \
-    if (auto* _logger = mpf::Logger::instance()) _logger->debug(tag, msg)
-#define MPF_LOG_INFO(tag, msg) \
-    if (auto* _logger = mpf::Logger::instance()) _logger->info(tag, msg)
-#define MPF_LOG_WARNING(tag, msg) \
-    if (auto* _logger = mpf::Logger::instance()) _logger->warning(tag, msg)
-#define MPF_LOG_ERROR(tag, msg) \
-    if (auto* _logger = mpf::Logger::instance()) _logger->error(tag, msg)
-
 } // namespace mpf
+
+// Convenience logging macros for plugins
+#define MPF_LOG_TRACE(tag, msg) \
+    if (auto* _l = mpf::LoggerAccess::instance()) _l->trace(tag, msg); else qDebug() << "[TRACE]" << tag << msg
+#define MPF_LOG_DEBUG(tag, msg) \
+    if (auto* _l = mpf::LoggerAccess::instance()) _l->debug(tag, msg); else qDebug() << "[DEBUG]" << tag << msg
+#define MPF_LOG_INFO(tag, msg) \
+    if (auto* _l = mpf::LoggerAccess::instance()) _l->info(tag, msg); else qDebug() << "[INFO]" << tag << msg
+#define MPF_LOG_WARNING(tag, msg) \
+    if (auto* _l = mpf::LoggerAccess::instance()) _l->warning(tag, msg); else qWarning() << "[WARN]" << tag << msg
+#define MPF_LOG_ERROR(tag, msg) \
+    if (auto* _l = mpf::LoggerAccess::instance()) _l->error(tag, msg); else qCritical() << "[ERROR]" << tag << msg
