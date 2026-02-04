@@ -5,6 +5,7 @@
 #include <mpf/interfaces/isettings.h>
 #include <mpf/interfaces/itheme.h>
 #include <mpf/interfaces/imenu.h>
+#include <mpf/interfaces/ieventbus.h>
 
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -29,6 +30,7 @@ void QmlContext::setup(QQmlApplicationEngine* engine)
     engine->rootContext()->setContextProperty("Settings", settings());
     engine->rootContext()->setContextProperty("Theme", theme());
     engine->rootContext()->setContextProperty("AppMenu", appMenu());
+    engine->rootContext()->setContextProperty("EventBus", eventBus());
 }
 
 QString QmlContext::version() const
@@ -56,6 +58,11 @@ QObject* QmlContext::theme() const
 QObject* QmlContext::appMenu() const
 {
     return m_registry->getObject<IMenu>();
+}
+
+QObject* QmlContext::eventBus() const
+{
+    return m_registry->getObject<IEventBus>();
 }
 
 } // namespace mpf

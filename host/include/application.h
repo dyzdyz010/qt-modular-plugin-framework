@@ -80,6 +80,7 @@ private:
     QString m_pluginPath;
     QString m_qmlPath;
     QString m_configPath;
+    QStringList m_extraQmlPaths;  // Extra QML import paths (e.g., SDK qml directory)
 
     static Application* s_instance;
 };

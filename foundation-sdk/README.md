@@ -21,7 +21,7 @@ target_link_libraries(your-target PRIVATE MPF::foundation-sdk)
 
 ```cmake
 find_package(MPF REQUIRED)
-target_link_libraries(your-target PRIVATE MPF::all)
+target_link_libraries(your-target PRIVATE MPF::bundle)
 ```
 
 ## 说明

@@ -1,0 +1,20 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/MPFUIComponentsTargets.cmake")
+
+# Register this component for MPF::bundle auto-discovery
+set_property(GLOBAL APPEND PROPERTY MPF_COMPONENT_TARGETS "MPF::ui-components")
+
+# Export QML module path for runtime discovery
+get_filename_component(_MPF_UI_COMPONENTS_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}" DIRECTORY)
+get_filename_component(_MPF_UI_COMPONENTS_LIB_DIR "${_MPF_UI_COMPONENTS_CMAKE_DIR}" DIRECTORY)
+get_filename_component(_MPF_UI_COMPONENTS_PREFIX "${_MPF_UI_COMPONENTS_LIB_DIR}" DIRECTORY)
+
+set(MPF_UI_COMPONENTS_QML_PATH "${_MPF_UI_COMPONENTS_PREFIX}/qml" CACHE PATH "MPF UI Components QML module path")
+
+# Register QML path for bundle to collect
+set_property(GLOBAL APPEND PROPERTY MPF_QML_IMPORT_PATHS "${MPF_UI_COMPONENTS_QML_PATH}")
+
+unset(_MPF_UI_COMPONENTS_CMAKE_DIR)
+unset(_MPF_UI_COMPONENTS_LIB_DIR)
+unset(_MPF_UI_COMPONENTS_PREFIX)

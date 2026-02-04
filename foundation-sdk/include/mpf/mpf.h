@@ -14,3 +14,4 @@
 #include <mpf/interfaces/isettings.h>
 #include <mpf/interfaces/itheme.h>
 #include <mpf/interfaces/imenu.h>
+#include <mpf/interfaces/ieventbus.h>

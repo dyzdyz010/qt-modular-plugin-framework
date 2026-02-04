@@ -7,14 +7,60 @@ if(NOT TARGET MPF::foundation-sdk)
     add_library(MPF::foundation-sdk ALIAS MPF::mpf-foundation-sdk)
 endif()
 
-if(NOT TARGET MPF::all)
-    add_library(MPF::all INTERFACE)
-    target_link_libraries(MPF::all INTERFACE MPF::foundation-sdk)
+# Get SDK install prefix for QML path detection
+get_filename_component(_mpf_config_dir "${CMAKE_CURRENT_LIST_DIR}" DIRECTORY)
+get_filename_component(_mpf_lib_dir "${_mpf_config_dir}" DIRECTORY)
+get_filename_component(MPF_PREFIX "${_mpf_lib_dir}" DIRECTORY)
+unset(_mpf_config_dir)
+unset(_mpf_lib_dir)
 
-    find_package(MPFHttpClient QUIET)
-    if(TARGET MPF::http-client)
-        target_link_libraries(MPF::all INTERFACE MPF::http-client)
+# Auto-discover and load all MPF component packages
+# Components should install to: <prefix>/lib/cmake/MPF<Name>/
+if(NOT TARGET MPF::bundle)
+    add_library(MPF::bundle INTERFACE IMPORTED)
+    target_link_libraries(MPF::bundle INTERFACE MPF::foundation-sdk)
+
+    # Scan for MPF* packages in sibling directories
+    get_filename_component(_mpf_cmake_root "${CMAKE_CURRENT_LIST_DIR}" DIRECTORY)
+    file(GLOB _mpf_pkg_dirs "${_mpf_cmake_root}/MPF*")
+    
+    foreach(_pkg_dir IN LISTS _mpf_pkg_dirs)
+        get_filename_component(_pkg_name "${_pkg_dir}" NAME)
+        
+        # Skip self (MPF) - only process MPF* components
+        if(_pkg_name STREQUAL "MPF")
+            continue()
+        endif()
+
+        # Try to find and load the package
+        find_package(${_pkg_name} QUIET CONFIG 
+            PATHS "${_pkg_dir}" 
+            NO_DEFAULT_PATH
+        )
+    endforeach()
+    
+    unset(_mpf_cmake_root)
+    unset(_mpf_pkg_dirs)
+
+    # Collect all registered MPF component targets and link to bundle
+    get_property(_mpf_components GLOBAL PROPERTY MPF_COMPONENT_TARGETS)
+    foreach(_component IN LISTS _mpf_components)
+        if(TARGET ${_component})
+            target_link_libraries(MPF::bundle INTERFACE ${_component})
+        endif()
+    endforeach()
+    unset(_mpf_components)
+    
+    # Collect all registered QML import paths from components
+    get_property(_mpf_qml_paths GLOBAL PROPERTY MPF_QML_IMPORT_PATHS)
+    if(_mpf_qml_paths)
+        list(REMOVE_DUPLICATES _mpf_qml_paths)
     endif()
+    set(MPF_QML_IMPORT_PATHS "${_mpf_qml_paths}" CACHE STRING "MPF QML import paths")
+    unset(_mpf_qml_paths)
 endif()
+
+# Provide a convenience variable for the main SDK qml path
+set(MPF_QML_PATH "${MPF_PREFIX}/qml" CACHE PATH "MPF SDK QML module path")
 
 check_required_components(MPF)

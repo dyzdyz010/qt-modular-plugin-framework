@@ -6,14 +6,17 @@
 #include "settings_service.h"
 #include "theme_service.h"
 #include "menu_service.h"
+#include "event_bus_service.h"
 #include "qml_context.h"
 
 #include "service_registry.h"
 #include "logger.h"
+#include <mpf/sdk_paths.h>
 #include <mpf/interfaces/inavigation.h>
 #include <mpf/interfaces/isettings.h>
 #include <mpf/interfaces/itheme.h>
 #include <mpf/interfaces/imenu.h>
+#include <mpf/interfaces/ieventbus.h>
 
 #include <QQmlContext>
 #include <QDir>
@@ -65,12 +68,14 @@ bool Application::initialize()
     auto* settings = new SettingsService(m_configPath, this);
     auto* theme = new ThemeService(this);
     auto* menu = new MenuService(this);
-    
+    auto* eventBus = new EventBusService(this);
+
     m_registry->add<INavigation>(navigation, INavigation::apiVersion(), "host");
     m_registry->add<ISettings>(settings, ISettings::apiVersion(), "host");
     m_registry->add<ITheme>(theme, ITheme::apiVersion(), "host");
     m_registry->add<IMenu>(menu, IMenu::apiVersion(), "host");
     m_registry->add<ILogger>(m_logger.get(), ILogger::apiVersion(), "host");
+    m_registry->add<IEventBus>(eventBus, IEventBus::apiVersion(), "host");
     
     // Create QML engine
     m_engine = std::make_unique<QQmlApplicationEngine>();
@@ -148,6 +153,25 @@ void Application::setupPaths()
 
                 resolvePath("pluginPath", &m_pluginPath);
                 resolvePath("qmlPath", &m_qmlPath);
+                
+                // Load extra QML import paths (e.g., SDK qml directory)
+                if (obj.contains("extraQmlPaths")) {
+                    QJsonValue extraPaths = obj.value("extraQmlPaths");
+                    if (extraPaths.isArray()) {
+                        for (const QJsonValue& v : extraPaths.toArray()) {
+                            if (v.isString()) {
+                                QString raw = v.toString().trimmed();
+                                if (!raw.isEmpty()) {
+                                    QString resolved = QDir::isAbsolutePath(raw)
+                                        ? raw
+                                        : QDir(baseDir).filePath(raw);
+                                    m_extraQmlPaths.append(QDir(resolved).absolutePath());
+                                }
+                            }
+                        }
+                    }
+                }
+                
                 qDebug() << "Loaded paths config:" << pathsConfig;
             } else {
                 qWarning() << "Invalid paths config:" << pathsConfig
@@ -161,6 +185,9 @@ void Application::setupPaths()
     qDebug() << "Plugin path:" << m_pluginPath;
     qDebug() << "QML path:" << m_qmlPath;
     qDebug() << "Config path:" << m_configPath;
+    if (!m_extraQmlPaths.isEmpty()) {
+        qDebug() << "Extra QML paths:" << m_extraQmlPaths;
+    }
     
     // Add library path for plugins
     m_app->addLibraryPath(m_pluginPath);
@@ -178,6 +205,25 @@ void Application::setupQmlContext()
     // Add QML import paths
     m_engine->addImportPath(m_qmlPath);
     m_engine->addImportPath("qrc:/");
+    
+    // Add SDK QML path (configured at build time via CMake)
+#if MPF_SDK_HAS_QML_PATH
+    QString sdkQmlPath = QStringLiteral(MPF_SDK_QML_PATH);
+    if (!sdkQmlPath.isEmpty() && QDir(sdkQmlPath).exists()) {
+        m_engine->addImportPath(sdkQmlPath);
+        qDebug() << "Added SDK QML import path:" << sdkQmlPath;
+    }
+#endif
+    
+    // Add extra QML import paths from config (allows runtime override)
+    for (const QString& path : m_extraQmlPaths) {
+        if (QDir(path).exists()) {
+            m_engine->addImportPath(path);
+            qDebug() << "Added extra QML import path:" << path;
+        } else {
+            qWarning() << "Extra QML path does not exist:" << path;
+        }
+    }
     
     // Add host QML module output directory for component discovery
     QString hostQmlDir = m_qmlPath + "/MPF/Host/qml";

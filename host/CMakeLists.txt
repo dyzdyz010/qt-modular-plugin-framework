@@ -18,6 +18,23 @@ configure_file(
     @ONLY
 )
 
+# Generate SDK paths header
+# MPF_PREFIX and MPF_QML_PATH are set by find_package(MPF)
+if(MPF_QML_PATH AND EXISTS "${MPF_QML_PATH}")
+    set(MPF_SDK_HAS_QML_PATH 1)
+else()
+    set(MPF_SDK_HAS_QML_PATH 0)
+endif()
+
+configure_file(
+    cmake/sdk_paths.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/include/mpf/sdk_paths.h
+    @ONLY
+)
+
+message(STATUS "MPF SDK prefix: ${MPF_PREFIX}")
+message(STATUS "MPF SDK QML path: ${MPF_QML_PATH}")
+
 # Application
 add_executable(mpf-host
     # Main
@@ -36,6 +53,7 @@ add_executable(mpf-host
     src/settings_service.cpp
     src/theme_service.cpp
     src/menu_service.cpp
+    src/event_bus_service.cpp
     src/qml_context.cpp
     
     # Headers
@@ -49,6 +67,7 @@ add_executable(mpf-host
     include/settings_service.h
     include/theme_service.h
     include/menu_service.h
+    include/event_bus_service.h
     include/qml_context.h
 )
 

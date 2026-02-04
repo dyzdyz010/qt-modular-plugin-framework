@@ -143,7 +143,8 @@ if ($Generator) {
 
 $Projects = @(
     @{ Name = "foundation-sdk"; Source = "foundation-sdk"; Build = "build/sdk/foundation-sdk" },
-    @{ Name = "http-client"; Source = "libs/http-client"; Build = "build/sdk/http-client" }
+    @{ Name = "http-client"; Source = "libs/http-client"; Build = "build/sdk/http-client" },
+    @{ Name = "ui-components"; Source = "libs/ui-components"; Build = "build/sdk/ui-components" }
 )
 
 foreach ($proj in $Projects) {
