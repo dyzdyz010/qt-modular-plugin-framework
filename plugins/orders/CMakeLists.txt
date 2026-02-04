@@ -38,6 +38,12 @@ set(CMAKE_AUTOMOC ON)  # Qt MOC 自动处理
 # -----------------------------------------------------------------------------
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick Network)
 
+# Set Qt policies to avoid warnings
+if(COMMAND qt_policy)
+    qt_policy(SET QTP0001 NEW)  # QML resource prefix
+    qt_policy(SET QTP0004 NEW)  # qmldir for extra directories
+endif()
+
 # -----------------------------------------------------------------------------
 # MPF SDK 依赖（必需）
 # MPF SDK 通过 CMAKE_PREFIX_PATH 指定安装位置

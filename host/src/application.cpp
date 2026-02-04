@@ -28,6 +28,7 @@
 #include <QJsonParseError>
 #include <QUrl>
 #include <QStandardPaths>
+#include <QRegularExpression>
 #include <QDebug>
 
 namespace mpf {
@@ -110,6 +111,35 @@ QStringList Application::arguments() const
     return m_app->arguments();
 }
 
+// Helper: expand environment variables in path string
+// Supports ${VAR}, $VAR (Unix), and %VAR% (Windows) syntax
+static QString expandEnvVars(const QString& path)
+{
+    QString result = path;
+    
+    // Expand ${VAR} syntax (cross-platform)
+    static QRegularExpression re1(R"(\$\{([^}]+)\})");
+    QRegularExpressionMatchIterator it1 = re1.globalMatch(result);
+    while (it1.hasNext()) {
+        QRegularExpressionMatch match = it1.next();
+        QString varName = match.captured(1);
+        QString varValue = qEnvironmentVariable(varName.toUtf8().constData());
+        result.replace(match.captured(0), varValue);
+    }
+    
+    // Expand %VAR% syntax (Windows)
+    static QRegularExpression re2(R"(%([^%]+)%)");
+    QRegularExpressionMatchIterator it2 = re2.globalMatch(result);
+    while (it2.hasNext()) {
+        QRegularExpressionMatch match = it2.next();
+        QString varName = match.captured(1);
+        QString varValue = qEnvironmentVariable(varName.toUtf8().constData());
+        result.replace(match.captured(0), varValue);
+    }
+    
+    return result;
+}
+
 void Application::setupPaths()
 {
     QString appDir = QCoreApplication::applicationDirPath();
@@ -137,6 +167,8 @@ void Application::setupPaths()
             if (error.error == QJsonParseError::NoError && doc.isObject()) {
                 QJsonObject obj = doc.object();
                 QString baseDir = QFileInfo(pathsConfig).absolutePath();
+                
+                // Helper to resolve path with env var expansion and relative path support
                 auto resolvePath = [&](const QString& key, QString* target) {
                     QJsonValue value = obj.value(key);
                     if (!value.isString()) {
@@ -146,6 +178,9 @@ void Application::setupPaths()
                     if (raw.isEmpty()) {
                         return;
                     }
+                    // First expand environment variables
+                    raw = expandEnvVars(raw);
+                    // Then resolve relative paths
                     QString resolved = QDir::isAbsolutePath(raw)
                         ? raw
                         : QDir(baseDir).filePath(raw);
@@ -163,6 +198,9 @@ void Application::setupPaths()
                             if (v.isString()) {
                                 QString raw = v.toString().trimmed();
                                 if (!raw.isEmpty()) {
+                                    // First expand environment variables
+                                    raw = expandEnvVars(raw);
+                                    // Then resolve relative paths
                                     QString resolved = QDir::isAbsolutePath(raw)
                                         ? raw
                                         : QDir(baseDir).filePath(raw);

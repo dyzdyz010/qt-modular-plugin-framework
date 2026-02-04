@@ -1,0 +1,28 @@
+{
+  "$schema": "https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html#schema",
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "local",
+      "displayName": "Local Development",
+      "description": "本地开发配置 - 复制此文件为 CMakeUserPresets.json 并修改路径",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/local",
+      "cacheVariables": {
+        "CMAKE_PREFIX_PATH": "/path/to/qt6;/path/to/mpf-sdk",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      },
+      "environment": {
+        "QT_DIR": "/path/to/qt6",
+        "MPF_SDK": "/path/to/mpf-sdk"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "local",
+      "configurePreset": "local"
+    }
+  ]
+}

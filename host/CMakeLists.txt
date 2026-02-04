@@ -8,6 +8,12 @@ set(CMAKE_AUTOMOC ON)
 # Find dependencies
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick)
 
+# Set Qt policies to avoid warnings
+if(COMMAND qt_policy)
+    qt_policy(SET QTP0001 NEW)  # QML resource prefix
+    qt_policy(SET QTP0004 NEW)  # qmldir for extra directories
+endif()
+
 # SDK (installed via CMAKE_PREFIX_PATH)
 find_package(MPF REQUIRED)
 
