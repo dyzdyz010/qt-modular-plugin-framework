@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import YourCo.Orders 1.0
+import MPF.Components 1.0
 
 Page {
     id: root
@@ -40,17 +41,14 @@ Page {
             width: root.width - 2 * (Theme ? Theme.spacingMedium : 16)
             spacing: Theme ? Theme.spacingMedium : 16
             
-            // Header card
-            Rectangle {
+            // Header card using MPFCard
+            MPFCard {
                 Layout.fillWidth: true
-                implicitHeight: headerContent.implicitHeight + 32
-                radius: Theme ? Theme.radiusMedium : 8
-                color: Theme ? Theme.surfaceColor : "#F5F5F5"
+                cardColor: Theme ? Theme.surfaceColor : "#F5F5F5"
+                borderWidth: 0
                 
                 ColumnLayout {
-                    id: headerContent
                     anchors.fill: parent
-                    anchors.margins: Theme ? Theme.spacingMedium : 16
                     spacing: Theme ? Theme.spacingSmall : 8
                     
                     RowLayout {
@@ -62,40 +60,10 @@ Page {
                             Layout.fillWidth: true
                         }
                         
-                        // Status badge
-                        Rectangle {
-                            implicitWidth: statusLabel.implicitWidth + 16
-                            implicitHeight: 28
-                            radius: 14
-                            color: {
-                                switch (orderData.status) {
-                                case "pending": return "#FFF3E0"
-                                case "processing": return "#E3F2FD"
-                                case "shipped": return "#E8F5E9"
-                                case "delivered": return "#E8F5E9"
-                                case "cancelled": return "#FFEBEE"
-                                default: return "#F5F5F5"
-                                }
-                            }
-                            
-                            Label {
-                                id: statusLabel
-                                anchors.centerIn: parent
-                                text: orderData.status || ""
-                                font.pixelSize: 13
-                                font.capitalization: Font.Capitalize
-                                font.bold: true
-                                color: {
-                                    switch (orderData.status) {
-                                    case "pending": return "#E65100"
-                                    case "processing": return "#1565C0"
-                                    case "shipped": return "#2E7D32"
-                                    case "delivered": return "#2E7D32"
-                                    case "cancelled": return "#C62828"
-                                    default: return "#757575"
-                                    }
-                                }
-                            }
+                        // Status badge using StatusBadge component
+                        StatusBadge {
+                            status: orderData.status || ""
+                            size: "medium"
                         }
                     }
                     
@@ -107,17 +75,12 @@ Page {
                 }
             }
             
-            // Customer info
-            GroupBox {
+            // Customer info using MPFCard
+            MPFCard {
                 title: qsTr("Customer Information")
                 Layout.fillWidth: true
-                
-                background: Rectangle {
-                    color: Theme ? Theme.surfaceColor : "#F5F5F5"
-                    radius: Theme ? Theme.radiusMedium : 8
-                    y: parent.topPadding - parent.bottomPadding
-                    height: parent.height - parent.topPadding + parent.bottomPadding
-                }
+                cardColor: Theme ? Theme.surfaceColor : "#F5F5F5"
+                borderWidth: 0
                 
                 ColumnLayout {
                     anchors.fill: parent
@@ -132,17 +95,12 @@ Page {
                 }
             }
             
-            // Product info
-            GroupBox {
+            // Product info using MPFCard
+            MPFCard {
                 title: qsTr("Product Details")
                 Layout.fillWidth: true
-                
-                background: Rectangle {
-                    color: Theme ? Theme.surfaceColor : "#F5F5F5"
-                    radius: Theme ? Theme.radiusMedium : 8
-                    y: parent.topPadding - parent.bottomPadding
-                    height: parent.height - parent.topPadding + parent.bottomPadding
-                }
+                cardColor: Theme ? Theme.surfaceColor : "#F5F5F5"
+                borderWidth: 0
                 
                 GridLayout {
                     anchors.fill: parent
@@ -174,8 +132,9 @@ Page {
                 Layout.fillWidth: true
                 spacing: Theme ? Theme.spacingSmall : 8
                 
-                Button {
+                MPFButton {
                     text: qsTr("Back")
+                    type: "ghost"
                     onClicked: Navigation.pop()
                 }
                 
@@ -193,37 +152,26 @@ Page {
                     }
                 }
                 
-                Button {
+                MPFButton {
                     text: qsTr("Delete")
+                    type: "danger"
                     onClicked: deleteDialog.open()
-                    
-                    background: Rectangle {
-                        color: parent.pressed 
-                            ? Qt.darker(Theme ? Theme.errorColor : "#F44336", 1.1)
-                            : Theme ? Theme.errorColor : "#F44336"
-                        radius: 4
-                    }
-                    contentItem: Text {
-                        text: parent.text
-                        color: "white"
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
                 }
             }
         }
     }
     
-    // Delete confirmation
-    Dialog {
+    // Delete confirmation using MPFDialog
+    MPFDialog {
         id: deleteDialog
         title: qsTr("Delete Order")
-        modal: true
-        standardButtons: Dialog.Yes | Dialog.No
-        anchors.centerIn: parent
+        type: "danger"
+        acceptText: qsTr("Delete")
+        rejectText: qsTr("Cancel")
         
-        Label {
+        content: Label {
             text: qsTr("Are you sure you want to delete this order?")
+            wrapMode: Text.WordWrap
         }
         
         onAccepted: {

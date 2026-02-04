@@ -1,30 +1,25 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import MPF.Components 1.0
 
-Dialog {
+MPFDialog {
     id: root
     
     property var orderData: ({})
     
     title: qsTr("Create New Order")
-    modal: true
-    standardButtons: Dialog.Ok | Dialog.Cancel
+    acceptText: qsTr("Create")
+    rejectText: qsTr("Cancel")
     
-    anchors.centerIn: parent
-    width: Math.min(400, parent.width - 40)
-    
-    background: Rectangle {
-        color: Theme ? Theme.surfaceColor : "#F5F5F5"
-        radius: Theme ? Theme.radiusMedium : 8
-    }
+    width: Math.min(400, parent ? parent.width - 40 : 400)
     
     onOpened: {
-        customerField.text = ""
-        productField.text = ""
+        customerField.clear()
+        productField.clear()
         quantityField.text = "1"
         priceField.text = ""
-        customerField.forceActiveFocus()
+        customerField.focus()
     }
     
     onAccepted: {
@@ -37,44 +32,26 @@ Dialog {
         }
     }
     
-    ColumnLayout {
-        anchors.fill: parent
+    content: ColumnLayout {
+        width: parent.width
         spacing: Theme ? Theme.spacingMedium : 16
         
         // Customer name
-        ColumnLayout {
+        MPFTextField {
+            id: customerField
             Layout.fillWidth: true
-            spacing: 4
-            
-            Label {
-                text: qsTr("Customer Name")
-                font.pixelSize: 12
-                color: Theme ? Theme.textSecondaryColor : "#757575"
-            }
-            
-            TextField {
-                id: customerField
-                Layout.fillWidth: true
-                placeholderText: qsTr("Enter customer name")
-            }
+            label: qsTr("Customer Name")
+            placeholder: qsTr("Enter customer name")
+            required: true
         }
         
         // Product name
-        ColumnLayout {
+        MPFTextField {
+            id: productField
             Layout.fillWidth: true
-            spacing: 4
-            
-            Label {
-                text: qsTr("Product Name")
-                font.pixelSize: 12
-                color: Theme ? Theme.textSecondaryColor : "#757575"
-            }
-            
-            TextField {
-                id: productField
-                Layout.fillWidth: true
-                placeholderText: qsTr("Enter product name")
-            }
+            label: qsTr("Product Name")
+            placeholder: qsTr("Enter product name")
+            required: true
         }
         
         // Quantity and Price row
@@ -82,56 +59,37 @@ Dialog {
             Layout.fillWidth: true
             spacing: Theme ? Theme.spacingMedium : 16
             
-            ColumnLayout {
+            MPFTextField {
+                id: quantityField
                 Layout.fillWidth: true
-                spacing: 4
-                
-                Label {
-                    text: qsTr("Quantity")
-                    font.pixelSize: 12
-                    color: Theme ? Theme.textSecondaryColor : "#757575"
-                }
-                
-                TextField {
-                    id: quantityField
-                    Layout.fillWidth: true
-                    placeholderText: "1"
-                    text: "1"
-                    validator: IntValidator { bottom: 1 }
-                    inputMethodHints: Qt.ImhDigitsOnly
-                }
+                label: qsTr("Quantity")
+                placeholder: "1"
+                text: "1"
+                validator: IntValidator { bottom: 1 }
+                inputMethodHints: Qt.ImhDigitsOnly
             }
             
-            ColumnLayout {
+            MPFTextField {
+                id: priceField
                 Layout.fillWidth: true
-                spacing: 4
-                
-                Label {
-                    text: qsTr("Unit Price ($)")
-                    font.pixelSize: 12
-                    color: Theme ? Theme.textSecondaryColor : "#757575"
-                }
-                
-                TextField {
-                    id: priceField
-                    Layout.fillWidth: true
-                    placeholderText: "0.00"
-                    validator: DoubleValidator { bottom: 0; decimals: 2 }
-                    inputMethodHints: Qt.ImhFormattedNumbersOnly
-                }
+                label: qsTr("Unit Price")
+                prefix: "$"
+                placeholder: "0.00"
+                validator: DoubleValidator { bottom: 0; decimals: 2 }
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
             }
         }
         
         // Total preview
-        Rectangle {
+        MPFCard {
             Layout.fillWidth: true
             implicitHeight: 48
-            radius: Theme ? Theme.radiusSmall : 4
-            color: Theme ? Qt.alpha(Theme.primaryColor, 0.1) : "#1A2196F3"
+            cardColor: Theme ? Qt.alpha(Theme.primaryColor, 0.1) : "#1A2196F3"
+            borderWidth: 0
+            contentPadding: Theme ? Theme.spacingSmall : 8
             
             RowLayout {
                 anchors.fill: parent
-                anchors.margins: Theme ? Theme.spacingSmall : 8
                 
                 Label {
                     text: qsTr("Total:")

@@ -24,6 +24,7 @@
 #include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QJsonParseError>
 #include <QUrl>
 #include <QStandardPaths>
@@ -191,6 +192,23 @@ void Application::setupPaths()
     
     // Add library path for plugins
     m_app->addLibraryPath(m_pluginPath);
+    
+    // Add SDK library path for plugin dependencies (e.g., mpf-http-client.dll)
+#if MPF_SDK_HAS_QML_PATH
+    // SDK bin directory is parallel to qml directory
+    QString sdkBinPath = QDir(QStringLiteral(MPF_SDK_QML_PATH)).filePath("../bin");
+    sdkBinPath = QDir(sdkBinPath).absolutePath();
+    if (QDir(sdkBinPath).exists()) {
+        m_app->addLibraryPath(sdkBinPath);
+#ifdef Q_OS_WIN
+        // On Windows, add SDK bin to PATH for DLL dependencies
+        QByteArray currentPath = qgetenv("PATH");
+        QByteArray newPath = sdkBinPath.toLocal8Bit() + ";" + currentPath;
+        qputenv("PATH", newPath);
+        qDebug() << "Added SDK bin to PATH:" << sdkBinPath;
+#endif
+    }
+#endif
 }
 
 void Application::setupLogging()

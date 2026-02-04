@@ -1,8 +1,9 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import MPF.Components 1.0
 
-Rectangle {
+MPFCard {
     id: root
     
     property string orderId: ""
@@ -14,36 +15,18 @@ Rectangle {
     property string status: ""
     property date createdAt
     
-    signal clicked()
     signal statusChangeRequested(string newStatus)
     signal deleteRequested()
     
     implicitHeight: 120
-    radius: Theme ? Theme.radiusMedium : 8
-    color: Theme ? Theme.surfaceColor : "#F5F5F5"
-    
-    // Hover effect
-    Rectangle {
-        anchors.fill: parent
-        radius: parent.radius
-        color: Theme ? Theme.primaryColor : "#2196F3"
-        opacity: mouseArea.containsMouse ? 0.05 : 0
-        
-        Behavior on opacity {
-            NumberAnimation { duration: 150 }
-        }
-    }
-    
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-        hoverEnabled: true
-        onClicked: root.clicked()
-    }
+    cardColor: Theme ? Theme.surfaceColor : "#F5F5F5"
+    borderWidth: 0
+    clickable: true
+    hoverable: true
+    contentPadding: Theme ? Theme.spacingMedium : 16
     
     RowLayout {
         anchors.fill: parent
-        anchors.margins: Theme ? Theme.spacingMedium : 16
         spacing: Theme ? Theme.spacingMedium : 16
         
         // Main info
@@ -61,39 +44,10 @@ Rectangle {
                     color: Theme ? Theme.textColor : "#212121"
                 }
                 
-                // Status badge
-                Rectangle {
-                    implicitWidth: statusLabel.implicitWidth + 12
-                    implicitHeight: 20
-                    radius: 10
-                    color: {
-                        switch (root.status) {
-                        case "pending": return "#FFF3E0"
-                        case "processing": return "#E3F2FD"
-                        case "shipped": return "#E8F5E9"
-                        case "delivered": return "#E8F5E9"
-                        case "cancelled": return "#FFEBEE"
-                        default: return "#F5F5F5"
-                        }
-                    }
-                    
-                    Label {
-                        id: statusLabel
-                        anchors.centerIn: parent
-                        text: root.status
-                        font.pixelSize: 11
-                        font.capitalization: Font.Capitalize
-                        color: {
-                            switch (root.status) {
-                            case "pending": return "#E65100"
-                            case "processing": return "#1565C0"
-                            case "shipped": return "#2E7D32"
-                            case "delivered": return "#2E7D32"
-                            case "cancelled": return "#C62828"
-                            default: return "#757575"
-                            }
-                        }
-                    }
+                // Status badge using StatusBadge component
+                StatusBadge {
+                    status: root.status
+                    size: "small"
                 }
             }
             
@@ -147,11 +101,11 @@ Rectangle {
                     }
                 }
                 
-                Button {
+                MPFButton {
                     text: "🗑️"
-                    flat: true
-                    implicitWidth: 36
-                    implicitHeight: 36
+                    type: "danger"
+                    size: "small"
+                    iconOnly: true
                     onClicked: root.deleteRequested()
                 }
             }

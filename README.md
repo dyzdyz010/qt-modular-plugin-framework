@@ -1,144 +1,224 @@
-# Qt Modular Plugin Framework
+# Qt Modular Plugin Framework (MPF)
 
-独立构建、运行时组合的 Qt6 插件框架。
+一个现代化的 Qt6 模块化插件框架，支持独立构建、运行时组合。
+
+## 特性
+
+- **模块化设计**: SDK、库、Host、插件独立开发
+- **服务注册中心**: 解耦的服务发现和依赖注入
+- **QML 集成**: 完整的 QML 模块支持
+- **可选库**: HTTP 客户端、UI 组件库
+- **跨平台**: Windows、Linux、macOS
+
+## 快速开始
+
+详细步骤请参阅 **[QUICKSTART.md](QUICKSTART.md)**
+
+### 一键构建（Windows）
+
+```powershell
+cd scripts
+.\build-all.ps1 -QtPath "C:/Qt/6.8.3/mingw_64" -SdkPath "C:/Qt/MPF"
+```
+
+### 分步构建
+
+```bash
+# 1. 安装 SDK
+cd foundation-sdk
+cmake -B build -DCMAKE_INSTALL_PREFIX=C:/Qt/MPF
+cmake --build build && cmake --install build
+
+# 2. 安装库
+cd ../libs/http-client
+cmake -B build -DCMAKE_PREFIX_PATH="C:/Qt/6.8.3/mingw_64;C:/Qt/MPF" -DCMAKE_INSTALL_PREFIX=C:/Qt/MPF
+cmake --build build && cmake --install build
+
+# 3. 构建 Host
+cd ../../host
+cmake -B build -DCMAKE_PREFIX_PATH="C:/Qt/6.8.3/mingw_64;C:/Qt/MPF"
+cmake --build build
+
+# 4. 构建插件
+cd ../plugins/orders
+cmake --preset default && cmake --build --preset default
+```
 
 ## 项目结构
 
 ```
 qt-modular-plugin-framework/
-├── foundation-sdk/    # 核心 SDK（必须先构建安装）
-├── host/              # 宿主应用
-└── plugins/
-    └── orders/        # 示例插件
+├── foundation-sdk/     # 核心 SDK - 接口定义、服务注册
+├── libs/               # 可选库
+│   ├── http-client/    # HTTP 客户端库
+│   └── ui-components/  # UI 组件库 (MPFCard, MPFButton...)
+├── host/               # 宿主应用 - 插件加载、QML Shell
+├── plugins/            # 插件
+│   ├── orders/         # 订单管理示例插件
+│   └── README.md
+├── scripts/            # 构建脚本
+├── QUICKSTART.md       # 快速入门指南
+├── CONTRIBUTING.md     # 贡献指南
+└── README.md           # 本文档
 ```
 
-> 实际协作可采用多仓库方式：`foundation-sdk`、`host`、每个 `libs/<lib>`、每个 `plugins/<plugin>` 分别独立开发。流程见 `CONTRIBUTING.md`。
+## 架构
 
-## 快速开始 (Windows + Qt Creator)
-
-### 前置条件
-- Qt 6.5+ (推荐 6.8)
-- CMake 3.21+
-- MinGW 或 MSVC
-
-### 步骤 1: 构建并安装 SDK（foundation + libs）
-
-**必须先完成这一步！** host 和 plugin 的开发期都依赖 SDK。
-
-```powershell
-.\scripts\install-sdk.ps1 -SdkPrefix C:/Qt/MPF -Config Release
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         Host Application                         │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐  │
+│  │ QML Engine  │  │   Service   │  │    Plugin Manager       │  │
+│  │   (Shell)   │  │  Registry   │  │  (Load/Init/Start/Stop) │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+         │                 │                      │
+         │                 │                      ▼
+         │                 │         ┌─────────────────────────┐
+         │                 │         │       Plugins           │
+         │                 │         │  ┌─────────┐ ┌───────┐  │
+         ▼                 ▼         │  │ Orders  │ │ Users │  │
+┌─────────────────────────────────┐  │  │ Plugin  │ │Plugin │  │
+│        Foundation SDK           │  │  └─────────┘ └───────┘  │
+│  IPlugin, INavigation, IMenu    │  └─────────────────────────┘
+│  ISettings, ITheme, IEventBus   │               │
+└─────────────────────────────────┘               │
+         │                                        │
+         ▼                                        ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                        MPF Libraries                             │
+│  ┌───────────────────┐  ┌──────────────────────────────────────┐│
+│  │   http-client     │  │          ui-components               ││
+│  │  HttpClient API   │  │  MPFCard, MPFButton, StatusBadge...  ││
+│  └───────────────────┘  └──────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-安装后检查：
-- `C:/Qt/MPF/lib/cmake/MPF/MPFConfig.cmake`
-- `C:/Qt/MPF/lib/cmake/MPFHttpClient/MPFHttpClientConfig.cmake`
+## 核心概念
 
-### 步骤 2: 在 Qt Creator 中配置 host
+### ServiceRegistry (服务注册中心)
 
-1. 打开 `host/CMakeLists.txt`
-2. 在 Kit 设置中添加 CMake 参数：
-   ```
-   -DCMAKE_PREFIX_PATH=C:/Qt/MPF
-   ```
-   或者在 Qt Creator: Projects → Build Settings → CMake → Add → `CMAKE_PREFIX_PATH` = `C:/Qt/MPF`
+```cpp
+// 注册服务
+registry->add<INavigation>(navigationService, "1.0", "host");
 
-3. 构建运行
-
-### 步骤 3: 构建插件
-
-```powershell
-cd plugins/orders
-mkdir build
-cd build
-cmake .. -G "MinGW Makefiles" -DCMAKE_PREFIX_PATH=C:/Qt/MPF
-cmake --build . --config Release
+// 获取服务
+auto* nav = registry->get<INavigation>();
+nav->registerRoute("orders", "qrc:/YourCo/Orders/qml/OrdersPage.qml");
 ```
 
-### 步骤 4: 同步 SDK 动态库到 host 运行目录
+### IPlugin (插件接口)
 
-```powershell
-.\scripts\sync-runtime-dlls.ps1 -SdkPrefix C:/Qt/MPF -HostBuildDir <host-build-dir> -Config Release
+```cpp
+class MyPlugin : public IPlugin {
+    bool initialize(ServiceRegistry* registry) override;
+    bool start() override;
+    void stop() override;
+    QString qmlModuleUri() const override { return "MyApp.MyPlugin"; }
+};
 ```
 
-### 步骤 5: 运行
+### QML 集成
 
-将插件复制到 host 的 plugins 目录：
-```powershell
-copy plugins\orders\build\plugins\orders-plugin.dll <host-build-dir>\plugins\
+```qml
+import MyApp.MyPlugin 1.0
+import MPF.Components 1.0
+
+Page {
+    MPFCard {
+        title: "My Card"
+        MPFButton {
+            text: "Click Me"
+            onClicked: MyService.doSomething()
+        }
+    }
+}
 ```
 
-运行 `<host-build-dir>\bin\mpf-host.exe`
+## 可用服务
 
----
+| 服务 | 接口 | 说明 |
+|------|------|------|
+| 导航 | `INavigation` | 页面路由和导航 |
+| 菜单 | `IMenu` | 侧边栏菜单管理 |
+| 设置 | `ISettings` | 配置存储 |
+| 主题 | `ITheme` | 主题颜色和样式 |
+| 事件总线 | `IEventBus` | 跨插件通信 |
+| 日志 | `ILogger` | 统一日志记录 |
 
-## Linux 构建
+## 可用库
 
-```bash
-# 1. SDK
-cmake -S foundation-sdk -B build/sdk/foundation-sdk -DCMAKE_INSTALL_PREFIX=$HOME/.local
-cmake --build build/sdk/foundation-sdk -j$(nproc)
-cmake --install build/sdk/foundation-sdk
+### HTTP 客户端 (mpf-http-client)
 
-cmake -S libs/http-client -B build/sdk/http-client -DCMAKE_INSTALL_PREFIX=$HOME/.local
-cmake --build build/sdk/http-client -j$(nproc)
-cmake --install build/sdk/http-client
+```cpp
+#include <mpf/http/http_client.h>
 
-# 2. Host
-cd ../../host && mkdir build && cd build
-cmake .. -DCMAKE_PREFIX_PATH=$HOME/.local
-make -j$(nproc)
-
-# 3. Plugin
-cd ../../plugins/orders && mkdir build && cd build
-cmake .. -DCMAKE_PREFIX_PATH=$HOME/.local
-make -j$(nproc)
-
-# 4. Run
-cp build/plugins/liborders-plugin.so ../../host/build/plugins/
-cp $HOME/.local/lib/libmpf-http-client.so ../../host/build/bin/
-cd ../../host/build && ./bin/mpf-host
+auto client = std::make_unique<HttpClient>(this);
+client->get(QUrl("https://api.example.com/data"));
 ```
 
----
+### UI 组件库 (mpf-ui-components)
 
-## 架构说明
+```qml
+import MPF.Components 1.0
 
-### foundation-sdk
-- 定义插件接口 (`IPlugin`, `INavigation`, `IMenu`, etc.)
-- 提供 `ServiceRegistry` 服务注册中心
-- 安装后生成 `MPF::foundation-sdk` CMake target
+MPFCard { }           // 卡片容器
+MPFButton { }         // 统一风格按钮
+MPFDialog { }         // 对话框
+MPFTextField { }      // 输入框
+StatusBadge { }       // 状态徽章
+MPFLoadingIndicator { } // 加载指示器
+```
 
-### host
-- 加载并管理插件
-- 提供核心服务实现
-- QML shell 界面
+## 创建新插件
 
-### plugins
-- 实现 `IPlugin` 接口
-- 通过 `ServiceRegistry` 获取/注册服务
-- 自带 QML 模块
-### libs
-- 例如 `http-client` 导出 `MPF::http-client`
-- 默认构建为动态库，运行时需跟随 host 部署
+1. 复制 `plugins/orders` 模板
+2. 重命名文件和类
+3. 修改 `CMakeLists.txt` 和元数据
+4. 实现业务逻辑
 
-### CMake 使用建议
-- 常规：`find_package(MPF REQUIRED)` + `MPF::foundation-sdk`
-- 一键：`find_package(MPF REQUIRED)` + `MPF::all`（会自动吸收可用的公共库，如 `MPF::http-client`）
+详见 [plugins/orders/README.md](plugins/orders/README.md)
+
+## 配置
+
+### paths.json
+
+```json
+{
+    "pluginPath": "path/to/plugins",
+    "qmlPath": "",
+    "extraQmlPaths": [
+        "path/to/plugin/qml",
+        "C:/Qt/MPF/qml"
+    ]
+}
+```
 
 ## 常见问题
 
-### Q: CMake 找不到 MPF
-确保先安装了 foundation-sdk，并设置 `CMAKE_PREFIX_PATH` 指向安装目录。
+### CMake 找不到 MPF
 
-### Q: Qt Creator 配置
-在 Projects → Build Settings → CMake 中添加：
-- `CMAKE_PREFIX_PATH` = `C:/Qt/MPF` (或你的安装路径)
+```bash
+cmake -DCMAKE_PREFIX_PATH="C:/Qt/6.8.3/mingw_64;C:/Qt/MPF" ...
+```
 
-### Q: 运行时找不到插件
-确保插件 .dll/.so 在 host 可执行文件同级的 `plugins/` 目录下。
+### 插件加载失败 "找不到模块"
 
-### Q: 运行时找不到 DLL
-确保 SDK 中的 DLL 已复制到 host 的运行目录（例如 `host/build/<kit>/bin`）。Windows 可用 `scripts/sync-runtime-dlls.ps1`。
+将 SDK bin 目录添加到 PATH：
+```powershell
+$env:PATH = "C:\Qt\MPF\bin;" + $env:PATH
+```
 
-### Q: Qt Creator 的 build 目录不在 host/build
-Qt Creator 默认会创建类似 `host/build/Desktop_Qt_6_8_3_MinGW_64_bit-Debug` 的目录。使用脚本时，把该目录作为 `-HostBuildDir` 传入即可。
+### QML 组件找不到
+
+确保 `paths.json` 中配置了正确的 `extraQmlPaths`。
+
+更多问题请参阅 [QUICKSTART.md](QUICKSTART.md#8-故障排除)
+
+## 许可证
+
+MIT License
+
+## 贡献
+
+欢迎贡献！请参阅 [CONTRIBUTING.md](CONTRIBUTING.md)

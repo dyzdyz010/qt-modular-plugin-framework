@@ -1,4 +1,8 @@
 {
-  "pluginPath": "",
-  "qmlPath": ""
+  "pluginPath": "C:/Users/dyz/Documents/dev/work/qt-modular-plugin-framework/plugins/orders/build/default/plugins",
+  "qmlPath": "",
+  "extraQmlPaths": [
+    "C:/Users/dyz/Documents/dev/work/qt-modular-plugin-framework/plugins/orders/build/default/qml",
+    "C:/Qt/MPF/qml"
+  ]
 }
